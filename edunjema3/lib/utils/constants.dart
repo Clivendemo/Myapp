@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppConstants {
   // App Info
-  static const String appName = 'KICD Lesson Planner';
+  static const String appName = 'EduNjema';
   static const String appVersion = '1.0.0';
   
   // Colors - Professional Blue and Green Theme

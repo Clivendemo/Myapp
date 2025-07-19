@@ -4,52 +4,66 @@ import '../../utils/constants.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_input_field.dart';
 import '../../services/auth_service.dart';
-import 'register_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+  bool _acceptTerms = false;
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
-    if (_formKey.currentState!.validate()) {
+  Future<void> _handleRegister() async {
+    if (_formKey.currentState!.validate() && _acceptTerms) {
       final authService = Provider.of<AuthService>(context, listen: false);
       
-      final success = await authService.signInWithEmail(
+      final success = await authService.signUpWithEmail(
         _emailController.text.trim(),
         _passwordController.text,
+        _nameController.text.trim(),
       );
 
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Login successful!'),
+            content: Text('Registration successful! Welcome!'),
             backgroundColor: AppConstants.successColor,
           ),
         );
+        // Navigation will happen automatically via AuthWrapper
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Login failed. Please try again.'),
+            content: Text('Registration failed. Please try again.'),
             backgroundColor: AppConstants.errorColor,
           ),
         );
       }
+    } else if (!_acceptTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please accept the terms and conditions'),
+          backgroundColor: AppConstants.warningColor,
+        ),
+      );
     }
   }
 
@@ -57,6 +71,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppConstants.backgroundColor,
+      appBar: AppBar(
+        title: const Text('Create Account'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: AppConstants.textPrimary,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppConstants.paddingLarge),
@@ -65,47 +85,9 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: AppConstants.paddingXLarge),
-                
-                // App Logo/Title
-                Container(
-                  padding: const EdgeInsets.all(AppConstants.paddingLarge),
-                  decoration: BoxDecoration(
-                    color: AppConstants.primaryColor,
-                    borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-                  ),
-                  child: const Column(
-                    children: [
-                      Icon(
-                        Icons.school,
-                        size: 48,
-                        color: Colors.white,
-                      ),
-                      SizedBox(height: AppConstants.paddingSmall),
-                      Text(
-                        AppConstants.appName,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Text(
-                        'AI-Powered Lesson Planning',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(height: AppConstants.paddingXLarge),
-                
                 // Welcome Text
                 const Text(
-                  'Welcome Back!',
+                  'Join EduNjema',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -117,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: AppConstants.paddingSmall),
                 
                 const Text(
-                  'Sign in to continue creating amazing lesson plans',
+                  'Create your account and start generating professional lesson plans',
                   style: TextStyle(
                     fontSize: 16,
                     color: AppConstants.textSecondary,
@@ -126,6 +108,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 
                 const SizedBox(height: AppConstants.paddingXLarge),
+                
+                // Name Field
+                CustomInputField(
+                  label: 'Full Name',
+                  hint: 'Enter your full name',
+                  controller: _nameController,
+                  prefixIcon: Icons.person_outlined,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your full name';
+                    }
+                    if (value.length < 2) {
+                      return 'Name must be at least 2 characters';
+                    }
+                    return null;
+                  },
+                ),
+                
+                const SizedBox(height: AppConstants.paddingMedium),
                 
                 // Email Field
                 CustomInputField(
@@ -150,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Password Field
                 CustomInputField(
                   label: 'Password',
-                  hint: 'Enter your password',
+                  hint: 'Create a password',
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   prefixIcon: Icons.lock_outlined,
@@ -162,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return 'Please enter a password';
                     }
                     if (value.length < 6) {
                       return 'Password must be at least 6 characters';
@@ -171,54 +172,84 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 
-                const SizedBox(height: AppConstants.paddingLarge),
+                const SizedBox(height: AppConstants.paddingMedium),
                 
-                // Login Button
-                Consumer<AuthService>(
-                  builder: (context, authService, child) {
-                    return CustomButton(
-                      text: 'Sign In',
-                      onPressed: _handleLogin,
-                      isLoading: authService.isLoading,
-                      icon: Icons.login,
-                    );
+                // Confirm Password Field
+                CustomInputField(
+                  label: 'Confirm Password',
+                  hint: 'Confirm your password',
+                  controller: _confirmPasswordController,
+                  obscureText: _obscureConfirmPassword,
+                  prefixIcon: Icons.lock_outlined,
+                  suffixIcon: _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                  onSuffixIconPressed: () {
+                    setState(() {
+                      _obscureConfirmPassword = !_obscureConfirmPassword;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please confirm your password';
+                    }
+                    if (value != _passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
                   },
                 ),
                 
                 const SizedBox(height: AppConstants.paddingMedium),
                 
-                // Forgot Password
-                TextButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Forgot password feature coming soon!'),
+                // Terms and Conditions Checkbox
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _acceptTerms,
+                      onChanged: (value) {
+                        setState(() {
+                          _acceptTerms = value ?? false;
+                        });
+                      },
+                      activeColor: AppConstants.primaryColor,
+                    ),
+                    const Expanded(
+                      child: Text(
+                        'I accept the Terms and Conditions and Privacy Policy',
+                        style: TextStyle(color: AppConstants.textSecondary),
                       ),
-                    );
-                  },
-                  child: const Text('Forgot Password?'),
+                    ),
+                  ],
                 ),
                 
                 const SizedBox(height: AppConstants.paddingLarge),
                 
-                // Sign Up Link
+                // Register Button
+                Consumer<AuthService>(
+                  builder: (context, authService, child) {
+                    return CustomButton(
+                      text: 'Create Account',
+                      onPressed: _handleRegister,
+                      isLoading: authService.isLoading,
+                      icon: Icons.person_add,
+                    );
+                  },
+                ),
+                
+                const SizedBox(height: AppConstants.paddingLarge),
+                
+                // Sign In Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      'Don\'t have an account? ',
+                      'Already have an account? ',
                       style: TextStyle(color: AppConstants.textSecondary),
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const RegisterScreen(),
-                          ),
-                        );
+                        Navigator.pop(context);
                       },
-                      child: const Text('Sign Up'),
+                      child: const Text('Sign In'),
                     ),
                   ],
                 ),
