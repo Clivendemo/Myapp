@@ -1,281 +1,164 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../utils/constants.dart';
-import '../../services/auth_service.dart';
-import 'home_tile.dart';
-import '../generator/plan_generator.dart';
-import '../profile/profile_screen.dart';
+import 'package:edunjema3/services/auth_service.dart';
+import 'package:edunjema3/utils/constants.dart';
+//import 'package:edunjema3/widgets/custom_button.dart';
+import 'package:edunjema3/screens/profile/profile_screen.dart';
+//import 'package:edunjema3/screens/lesson_plan_edit/lesson_plan_edit_screen.dart';
+import 'package:edunjema3/screens/generated_plans/generated_plans_screen.dart';
+import 'package:edunjema3/screens/notes_generator/notes_generator_screen.dart';
+import 'package:edunjema3/screens/faq/faq_screen.dart';
+import 'package:edunjema3/screens/subscription/subscription_screen.dart';
+import 'package:edunjema3/screens/lesson_plan_editor.dart/lesson_plan_editor_screen.dart';
 
+/// The main home screen displayed after a user successfully logs in.
 class HomeScreen extends StatelessWidget {
+  /// Creates a [HomeScreen] instance.
   const HomeScreen({super.key});
+
+  /// Handles the user logout process.
+  ///
+  /// [context] The current build context.
+  void _handleLogout(BuildContext context) async {
+    try {
+      await AuthService().signOut();
+      // No need to navigate explicitly, AuthFlowWrapper will handle it via stream
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logout failed: ${e.toString()}')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppConstants.backgroundColor,
       appBar: AppBar(
-        title: const Text(AppConstants.appName),
-        automaticallyImplyLeading: false,
+        title: const Text('edunjema3 Lesson Planner'),
         actions: [
-          Consumer<AuthService>(
-            builder: (context, authService, child) {
-              final user = authService.currentUser;
-              return Padding(
-                padding: const EdgeInsets.only(right: AppConstants.paddingMedium),
-                child: Row(
-                  children: [
-                    if (user != null && !user.hasActivePremium)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppConstants.paddingSmall,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppConstants.warningColor,
-                          borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
-                        ),
-                        child: Text(
-                          '${AppConstants.freePlanLimit - user.generatedPlansCount} free left',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    const SizedBox(width: AppConstants.paddingSmall),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ProfileScreen(),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.person),
-                    ),
-                  ],
-                ),
-              );
-            },
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => _handleLogout(context),
+            tooltip: 'Logout',
           ),
         ],
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppConstants.paddingLarge),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppConstants.largePadding),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Welcome Section
-              Consumer<AuthService>(
-                builder: (context, authService, child) {
-                  final user = authService.currentUser;
-                  return Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(AppConstants.paddingLarge),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppConstants.primaryColor, AppConstants.accentColor],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+              Icon(
+                Icons.school,
+                size: 100,
+                color: AppConstants.primaryColor.withOpacity(0.7),
+              ),
+              const SizedBox(height: AppConstants.largePadding),
+              Text(
+                'Welcome to your Lesson Planner!',
+                style: AppConstants.headline5.copyWith(color: AppConstants.primaryColor),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppConstants.mediumPadding),
+              Text(
+                'Start generating amazing lesson plans and notes tailored to the KICD syllabus.',
+                style: AppConstants.bodyText1.copyWith(color: AppConstants.mutedTextColor),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppConstants.largePadding),
+              Expanded( // Use Expanded to allow GridView to take available space
+                child: GridView.count(
+                  crossAxisCount: 2, // Two columns
+                  crossAxisSpacing: AppConstants.mediumPadding,
+                  mainAxisSpacing: AppConstants.mediumPadding,
+                  childAspectRatio: 1.5, // Adjust aspect ratio for button size
+                  shrinkWrap: true, // Important for GridView inside Column/Expanded
+                  physics: const NeverScrollableScrollPhysics(), // Disable GridView's own scrolling
+                  children: [
+                    _buildFeatureButton(
+                      context,
+                      'Start Planning',
+                      Icons.create_new_folder,
+                      AppConstants.accentColor,
+                      () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => const LessonPlanEditorScreen()),
                       ),
-                      borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Welcome back, ${user?.displayName ?? 'Teacher'}!',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: AppConstants.paddingSmall),
-                        const Text(
-                          'Ready to create amazing KICD-aligned lesson plans?',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white70,
-                          ),
-                        ),
-                        if (user != null && !user.hasActivePremium) ...[
-                          const SizedBox(height: AppConstants.paddingMedium),
-                          Container(
-                            padding: const EdgeInsets.all(AppConstants.paddingMedium),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.info_outline, color: Colors.white),
-                                const SizedBox(width: AppConstants.paddingSmall),
-                                Expanded(
-                                  child: Text(
-                                    'You have ${AppConstants.freePlanLimit - user.generatedPlansCount} free lesson plans remaining',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
+                    _buildFeatureButton(
+                      context,
+                      'Generate Notes',
+                      Icons.notes,
+                      AppConstants.primaryColor.withOpacity(0.9),
+                      () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => const NotesGeneratorScreen()),
+                      ),
                     ),
-                  );
-                },
-              ),
-              
-              const SizedBox(height: AppConstants.paddingXLarge),
-              
-              // Quick Actions Title
-              const Text(
-                'Quick Actions',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppConstants.textPrimary,
+                    _buildFeatureButton(
+                      context,
+                      'View Saved Plans',
+                      Icons.collections_bookmark,
+                      AppConstants.primaryColor.withOpacity(0.8),
+                      () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => const GeneratedPlansScreen()),
+                      ),
+                    ),
+                    _buildFeatureButton(
+                      context,
+                      'Edit Profile',
+                      Icons.person,
+                      AppConstants.mutedTextColor.withOpacity(0.8),
+                      () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                      ),
+                    ),
+                    _buildFeatureButton(
+                      context,
+                      'Subscription',
+                      Icons.card_membership,
+                      AppConstants.primaryColor.withOpacity(0.7),
+                      () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
+                      ),
+                    ),
+                    _buildFeatureButton(
+                      context,
+                      'FAQ',
+                      Icons.help_outline,
+                      AppConstants.primaryColor.withOpacity(0.6),
+                      () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => const FAQScreen()),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              
-              const SizedBox(height: AppConstants.paddingMedium),
-              
-              // Main Features Grid
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: AppConstants.paddingMedium,
-                mainAxisSpacing: AppConstants.paddingMedium,
-                childAspectRatio: 1.1,
-                children: [
-                  HomeTile(
-                    icon: Icons.school,
-                    label: 'My Subjects',
-                    subtitle: 'Pick class, subject, topic',
-                    color: AppConstants.primaryColor,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('My Subjects - Coming Soon!')),
-                      );
-                    },
-                  ),
-                  HomeTile(
-                    icon: Icons.description,
-                    label: 'Create Lesson Plan',
-                    subtitle: 'AI-powered generator',
-                    color: AppConstants.secondaryColor,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PlanGenerator(),
-                        ),
-                      );
-                    },
-                  ),
-                  HomeTile(
-                    icon: Icons.menu_book,
-                    label: 'Notes Generator',
-                    subtitle: 'AI teaching notes',
-                    color: AppConstants.accentColor,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Notes Generator - Coming Soon!')),
-                      );
-                    },
-                  ),
-                  HomeTile(
-                    icon: Icons.folder,
-                    label: 'My Saved Plans',
-                    subtitle: 'Access previous plans',
-                    color: Colors.orange,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Saved Plans - Coming Soon!')),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: AppConstants.paddingLarge),
-              
-              // Additional Features
-              const Text(
-                'More Features',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppConstants.textPrimary,
-                ),
-              ),
-              
-              const SizedBox(height: AppConstants.paddingMedium),
-              
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: AppConstants.paddingMedium,
-                mainAxisSpacing: AppConstants.paddingMedium,
-                childAspectRatio: 1.1,
-                children: [
-                  HomeTile(
-                    icon: Icons.stars,
-                    label: 'Upgrade',
-                    subtitle: 'Premium plans',
-                    color: Colors.purple,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Upgrade - Coming Soon!')),
-                      );
-                    },
-                  ),
-                  HomeTile(
-                    icon: Icons.settings,
-                    label: 'Settings',
-                    subtitle: 'App preferences',
-                    color: Colors.grey,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Settings - Coming Soon!')),
-                      );
-                    },
-                  ),
-                  HomeTile(
-                    icon: Icons.help_outline,
-                    label: 'Help & Support',
-                    subtitle: 'FAQs & contact',
-                    color: Colors.teal,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Help & Support - Coming Soon!')),
-                      );
-                    },
-                  ),
-                  HomeTile(
-                    icon: Icons.person,
-                    label: 'Profile',
-                    subtitle: 'Manage account',
-                    color: AppConstants.primaryColor,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ProfileScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                ],
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureButton(BuildContext context, String text, IconData icon, Color color, VoidCallback onPressed) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppConstants.mediumPadding),
+      ),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(AppConstants.mediumPadding),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40, color: color),
+            const SizedBox(height: AppConstants.smallPadding),
+            Text(
+              text,
+              style: AppConstants.bodyText1.copyWith(color: AppConstants.textColor, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
