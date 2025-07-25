@@ -1,59 +1,21 @@
 {
   "project_info": {
-    "project_number": "95600051674",
-    "project_id": "edunjema3",
-    "storage_bucket": "edunjema3.firebasestorage.app"
+    "project_number": "576942726328",
+    "project_id": "edunjema3-cc49c",
+    "storage_bucket": "edunjema3-cc49c.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:95600051674:android:e942082f3126de40642ce3",
+        "mobilesdk_app_id": "1:576942726328:android:a76a2eae62a8c5cad6284d",
         "android_client_info": {
-          "package_name": "com.example.edunjema3"
+          "package_name": "com.company.edunjema3"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAMWW_at2f57DtVL6PRa1PRgnXjxLGdO3s"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:95600051674:android:7f6c2e7036fa4430642ce3",
-        "android_client_info": {
-          "package_name": "com.firstborm.edunjema3"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAMWW_at2f57DtVL6PRa1PRgnXjxLGdO3s"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:95600051674:android:5d1451de17810a3a642ce3",
-        "android_client_info": {
-          "package_name": "com.firstborn.edunjema3"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAMWW_at2f57DtVL6PRa1PRgnXjxLGdO3s"
+          "current_key": "AIzaSyCRBlJVFE32nc3Gt2qhsFlGbPEYJcaIjO0"
         }
       ],
       "services": {
