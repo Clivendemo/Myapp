@@ -10,8 +10,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-    flutter_dotenv: ^5.1.0
+  
     
+    
+  http: ^1.4.0 # NEW: Added http package for API requests
+  provider: ^6.0.0 # NEW: Added provider for state management
+  
   
   # State Management
   flutter_riverpod: ^2.5.1
@@ -32,7 +36,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^3.0.0
   build_runner: ^2.4.9 # Required for Riverpod code generation
-  riverpod_generator: ^2.4.0 # Required for Riverpod code generation
+  
 
 # The following section is specific to Flutter packages.
 flutter:

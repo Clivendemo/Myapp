@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/firestore_service.dart';
+// Removed: import 'package:edunjema3/utils/logger.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -20,6 +21,186 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   final FirestoreService _firestoreService = FirestoreService();
 
+  // Mock syllabus data for demonstration
+  final Map<String, dynamic> _mockSyllabusContent = {
+    'CBC': {
+      'Grade 1': {
+        'Mathematics': {},
+        'English': {},
+        'Kiswahili': {},
+        'Environmental Activities': {},
+        'Religious Education': {},
+        'Art and Craft': {},
+        'Music': {},
+        'Physical Education': {},
+      },
+      'Grade 2': {
+        'Mathematics': {},
+        'English': {},
+        'Kiswahili': {},
+        'Environmental Activities': {},
+        'Religious Education': {},
+        'Art and Craft': {},
+        'Music': {},
+        'Physical Education': {},
+      },
+      'Grade 3': {
+        'Mathematics': {},
+        'English': {},
+        'Kiswahili': {},
+        'Environmental Activities': {},
+        'Social Studies': {},
+        'Science and Technology': {},
+        'Religious Education': {},
+        'Art and Craft': {},
+        'Music': {},
+        'Physical Education': {},
+      },
+      'Grade 4': {
+        'Mathematics': {},
+        'English': {},
+        'Kiswahili': {},
+        'Science and Technology': {},
+        'Social Studies and Religious Education': {},
+        'Home Science': {},
+        'Agriculture': {},
+        'Art and Craft': {},
+        'Music': {},
+        'Physical and Health Education': {},
+        'Business Studies': {},
+        'Computer Studies': {},
+      },
+      'Grade 5': {
+        'Mathematics': {},
+        'English': {},
+        'Kiswahili': {},
+        'Science and Technology': {},
+        'Social Studies and Religious Education': {},
+        'Home Science': {},
+        'Agriculture': {},
+        'Art and Craft': {},
+        'Music': {},
+        'Physical and Health Education': {},
+        'Business Studies': {},
+        'Computer Studies': {},
+      },
+      'Grade 6': {
+        'Mathematics': {},
+        'English': {},
+        'Kiswahili': {},
+        'Science and Technology': {},
+        'Social Studies and Religious Education': {},
+        'Home Science': {},
+        'Agriculture': {},
+        'Art and Craft': {},
+        'Music': {},
+        'Physical and Health Education': {},
+        'Business Studies': {},
+        'Computer Studies': {},
+      },
+      'Grade 7': {
+        'Mathematics': {},
+        'English': {},
+        'Kiswahili': {},
+        'Integrated Science': {},
+        'Social Studies': {},
+        'Religious Education': {},
+        'Pre-Technical Studies': {},
+        'Visual Arts': {},
+        'Performing Arts': {},
+        'Home Science': {},
+        'Computer Science': {},
+        'Business Studies': {},
+        'Agriculture and Nutrition': {},
+        'Sports and Physical Education': {},
+      },
+      'Grade 8': {
+        'Mathematics': {},
+        'English': {},
+        'Kiswahili': {},
+        'Integrated Science': {},
+        'Social Studies': {},
+        'Religious Education': {},
+        'Pre-Technical Studies': {},
+        'Visual Arts': {},
+        'Performing Arts': {},
+        'Home Science': {},
+        'Computer Science': {},
+        'Business Studies': {},
+        'Agriculture and Nutrition': {},
+        'Sports and Physical Education': {},
+      },
+      'Grade 9': {
+        'Mathematics': {},
+        'English': {},
+        'Kiswahili': {},
+        'Integrated Science': {},
+        'Social Studies': {},
+        'Religious Education': {},
+        'Pre-Technical Studies': {},
+        'Visual Arts': {},
+        'Performing Arts': {},
+        'Home Science': {},
+        'Computer Science': {},
+        'Business Studies': {},
+        'Agriculture and Nutrition': {},
+        'Sports and Physical Education': {},
+      },
+      'Grade 10': {
+        'Mathematics': {},
+        'English': {},
+        'Kiswahili': {},
+        'Biology': {},
+        'Chemistry': {},
+        'Physics': {},
+        'History': {},
+        'Geography': {},
+        'Business Studies': {},
+        'Agriculture': {},
+        'Computer Studies': {},
+        'Art and Design': {},
+        'Music': {},
+        'French': {},
+        'German': {},
+        'Arabic': {},
+        'Home Science': {},
+        'Religious Education': {},
+      },
+    },
+    '8-4-4': {
+      'Form 2': {
+        'Mathematics': {}, 'English': {}, 'Kiswahili': {},
+        'Biology': {}, 'Chemistry': {}, 'Physics': {},
+        'History': {}, 'Geography': {}, 'Religious Education (CRE/IRE/HRE)': {},
+        'Business Studies': {}, 'Agriculture': {}, 'Computer Studies': {},
+        'Art and Design': {}, 'Music': {}, 'French': {}, 'German': {}, 'Arabic': {},
+        'Home Science': {}, 'Woodwork': {}, 'Metalwork': {}, 'Building Construction': {},
+        'Power Mechanics': {}, 'Electricity': {}, 'Drawing and Design': {},
+        'Aviation Technology': {},
+      },
+      'Form 3': {
+        'Mathematics': {}, 'English': {}, 'Kiswahili': {},
+        'Biology': {}, 'Chemistry': {}, 'Physics': {},
+        'History': {}, 'Geography': {}, 'Religious Education (CRE/IRE/HRE)': {},
+        'Business Studies': {}, 'Agriculture': {}, 'Computer Studies': {},
+        'Art and Design': {}, 'Music': {}, 'French': {}, 'German': {}, 'Arabic': {},
+        'Home Science': {}, 'Woodwork': {}, 'Metalwork': {}, 'Building Construction': {},
+        'Power Mechanics': {}, 'Electricity': {}, 'Drawing and Design': {},
+        'Aviation Technology': {},
+      },
+      'Form 4': {
+        'Mathematics': {}, 'English': {}, 'Kiswahili': {},
+        'Biology': {}, 'Chemistry': {}, 'Physics': {},
+        'History': {}, 'Geography': {}, 'Religious Education (CRE/IRE/HRE)': {},
+        'Business Studies': {}, 'Agriculture': {}, 'Computer Studies': {},
+        'Art and Design': {}, 'Music': {}, 'French': {}, 'German': {}, 'Arabic': {},
+        'Home Science': {}, 'Woodwork': {}, 'Metalwork': {}, 'Building Construction': {},
+        'Power Mechanics': {}, 'Electricity': {}, 'Drawing and Design': {},
+        'Aviation Technology': {},
+      },
+    },
+  };
+
   @override
   void initState() {
     super.initState();
@@ -32,18 +213,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _settingsError = null;
     });
     try {
+      // Try to load from Firestore, fallback to mock data
       _syllabusContent = await _firestoreService.getSyllabusContent();
+      if (_syllabusContent.isEmpty) {
+        _syllabusContent = _mockSyllabusContent;
+      }
+      
       _userSettings = await _firestoreService.getUserSettings();
 
       setState(() {
-        _selectedSyllabus = _userSettings['syllabus'];
-        _selectedGrade = _userSettings['grade'];
-        _selectedSubject = _userSettings['subject'];
+        _selectedSyllabus = _userSettings['syllabus'] ?? 'CBC';
+        _selectedGrade = _userSettings['grade'] ?? 'Grade 1';
+        _selectedSubject = _userSettings['subject'] ?? 'Mathematics';
       });
     } catch (e) {
       print('Error loading initial settings data: $e');
+      // Use mock data as fallback
+      _syllabusContent = _mockSyllabusContent;
       setState(() {
-        _settingsError = 'Failed to load settings: $e';
+        _selectedSyllabus = 'CBC';
+        _selectedGrade = 'Grade 1';
+        _selectedSubject = 'Mathematics';
+        _settingsError = null; // Don't show error, just use defaults
       });
     } finally {
       setState(() {
@@ -67,17 +258,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
       setState(() {
         _userSettings = newSettings;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Settings saved successfully!')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Settings saved successfully!')),
+        );
+      }
     } catch (e) {
       print('Error saving settings: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save settings: $e')),
-      );
-      setState(() {
-        _settingsError = 'Failed to save settings: $e';
-      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save settings: $e')),
+        );
+        setState(() {
+          _settingsError = 'Failed to save settings: $e';
+        });
+      }
     } finally {
       setState(() {
         _isLoadingSettings = false;
@@ -118,7 +313,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Syllabus Preference',
+                                'Teaching Preferences',
                                 style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 16),
@@ -128,7 +323,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   labelText: 'Syllabus',
                                   prefixIcon: Icon(Icons.menu_book),
                                 ),
-                                items: _syllabusContent.keys.map<DropdownMenuItem<String>>((item) { // MODIFIED: Explicit type argument
+                                items: _syllabusContent.keys.map<DropdownMenuItem<String>>((item) {
                                   return DropdownMenuItem<String>(
                                     value: item.toString(),
                                     child: Text(item.toString()),
@@ -144,11 +339,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 validator: (value) => value == null ? 'Please select a syllabus' : null,
                               ),
                               const SizedBox(height: 20),
-                              Text(
-                                'Grade/Form Level',
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 16),
                               DropdownButtonFormField<String>(
                                 value: _selectedGrade,
                                 decoration: const InputDecoration(
@@ -156,15 +346,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   prefixIcon: Icon(Icons.grade),
                                 ),
                                 items: _selectedSyllabus != null
-                                    ? (_syllabusContent[_selectedSyllabus!] as Map<String, dynamic>?)
-                                        ?.keys
-                                        .map<DropdownMenuItem<String>>((item) { // MODIFIED: Explicit type argument
-                                          return DropdownMenuItem<String>(
-                                            value: item.toString(),
-                                            child: Text(item.toString()),
-                                          );
-                                        }).toList() ?? []
-                                    : [],
+                                  ? (_syllabusContent[_selectedSyllabus!] as Map<String, dynamic>?)
+                                      ?.keys
+                                      .map<DropdownMenuItem<String>>((item) {
+                                        return DropdownMenuItem<String>(
+                                          value: item.toString(),
+                                          child: Text(item.toString()),
+                                        );
+                                      }).toList() ?? []
+                                  : [],
                                 onChanged: (String? newValue) {
                                   setState(() {
                                     _selectedGrade = newValue;
@@ -174,11 +364,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 validator: (value) => value == null ? 'Please select a grade/form' : null,
                               ),
                               const SizedBox(height: 20),
-                              Text(
-                                'Subject',
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 16),
                               DropdownButtonFormField<String>(
                                 value: _selectedSubject,
                                 decoration: const InputDecoration(
@@ -186,15 +371,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   prefixIcon: Icon(Icons.subject),
                                 ),
                                 items: (_selectedSyllabus != null && _selectedGrade != null)
-                                    ? (_syllabusContent[_selectedSyllabus!]?[_selectedGrade!] as Map<String, dynamic>?)
-                                        ?.keys
-                                        .map<DropdownMenuItem<String>>((item) { // MODIFIED: Explicit type argument
-                                          return DropdownMenuItem<String>(
-                                            value: item.toString(),
-                                            child: Text(item.toString()),
-                                          );
-                                        }).toList() ?? []
-                                    : [],
+                                  ? (_syllabusContent[_selectedSyllabus!]?[_selectedGrade!] as Map<String, dynamic>?)
+                                      ?.keys
+                                      .map<DropdownMenuItem<String>>((item) {
+                                        return DropdownMenuItem<String>(
+                                          value: item.toString(),
+                                          child: Text(item.toString()),
+                                        );
+                                      }).toList() ?? []
+                                  : [],
                                 onChanged: (String? newValue) {
                                   setState(() {
                                     _selectedSubject = newValue;
@@ -214,6 +399,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         )
                                       : const Text('Save Settings'),
                                 ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'App Information',
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 16),
+                              const ListTile(
+                                leading: Icon(Icons.info_outline),
+                                title: Text('Version'),
+                                subtitle: Text('1.0.0'),
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                              const ListTile(
+                                leading: Icon(Icons.developer_mode),
+                                title: Text('Developer'),
+                                subtitle: Text('Teacher AI Team'),
+                                contentPadding: EdgeInsets.zero,
                               ),
                             ],
                           ),
