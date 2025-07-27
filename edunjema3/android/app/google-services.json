@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:576942726328:android:a76a2eae62a8c5cad6284d",
+        "mobilesdk_app_id": "1:576942726328:android:7b53d529e0890a12d6284d",
         "android_client_info": {
-          "package_name": "com.company.edunjema3"
+          "package_name": "com.example.edunjema3"
         }
       },
       "oauth_client": [],

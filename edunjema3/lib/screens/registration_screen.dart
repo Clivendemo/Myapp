@@ -1,28 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
+import '../services/firestore_service.dart';
+//import 'package:firebase_auth/firebase_auth.dart';
 
-class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key});
+class RegistrationScreen extends StatefulWidget {
+  const RegistrationScreen({super.key});
 
   @override
-  State<AuthScreen> createState() => _AuthScreenState();
+  State<RegistrationScreen> createState() => _RegistrationScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> {
+class _RegistrationScreenState extends State<RegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
 
   final AuthService _authService = AuthService();
+  final FirestoreService _firestoreService = FirestoreService();
 
-  Future<void> _submitLoginForm() async {
-    print('[_submitLoginForm] Button pressed.');
+  Future<void> _registerUser() async {
     if (!_formKey.currentState!.validate()) {
-      print('[_submitLoginForm] Form validation failed.');
       return;
     }
 
@@ -35,28 +37,66 @@ class _AuthScreenState extends State<AuthScreen> {
 
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
+    final name = _nameController.text.trim();
 
     try {
-      print('[_submitLoginForm] Attempting to sign in with $email...');
-      await _authService.signInWithEmailAndPassword(email, password);
-      // If successful, GoRouter's redirect will handle navigation to /home
+      print('[RegistrationScreen] Starting registration process...');
+      print('[RegistrationScreen] Email: $email, Name: $name');
+      
+      // 1. Create user with email and password using AuthService
+      final userCredential = await _authService.createUserWithEmailAndPassword(
+        email,
+        password,
+      );
+
+      final user = userCredential.user;
+      if (user == null) {
+        throw 'User not created after registration.';
+      }
+
+      print('[RegistrationScreen] User created successfully, now saving profile...');
+
+      // 2. Save additional user profile details (name) to Firestore
+      await _firestoreService.saveUserProfile(
+        userId: user.uid,
+        name: name,
+      );
+
+      print('[RegistrationScreen] Profile saved successfully.');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registration successful!')),
+        );
+
+        // 3. After successful registration, navigate back to the login screen
+        // GoRouter's redirect will then automatically send authenticated users to /home
+        context.go('/'); // Navigate back to the login screen
+      }
     } catch (e, st) {
-      print('[AuthScreen] Auth operation failed. Type: ${e.runtimeType}, Message: $e');
+      print('[RegistrationScreen] Error during registration. Type: ${e.runtimeType}, Message: $e');
       print('Stack Trace: $st');
-      setState(() {
-        _errorMessage = e.toString();
-      });
+      
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+        });
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -64,7 +104,7 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login to edunjema3'),
+        title: const Text('Register for edunjema3'),
         centerTitle: true,
       ),
       body: Center(
@@ -81,13 +121,30 @@ class _AuthScreenState extends State<AuthScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Welcome Back!',
+                      'Create Your Account',
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).primaryColor,
                           ),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
+                    TextFormField(
+                      controller: _nameController,
+                      keyboardType: TextInputType.name,
+                      decoration: const InputDecoration(
+                        labelText: 'Your Name',
+                        hintText: 'e.g., John Doe',
+                        prefixIcon: Icon(Icons.person),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your name.';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -119,6 +176,25 @@ class _AuthScreenState extends State<AuthScreen> {
                         return null;
                       },
                     ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _confirmPasswordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Confirm Password',
+                        hintText: 'Re-enter your password',
+                        prefixIcon: Icon(Icons.lock),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please confirm your password.';
+                        }
+                        if (value != _passwordController.text) {
+                          return 'Passwords do not match.';
+                        }
+                        return null;
+                      },
+                    ),
                     const SizedBox(height: 24),
                     if (_errorMessage != null)
                       Padding(
@@ -132,7 +208,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _isLoading ? null : _submitLoginForm,
+                        onPressed: _isLoading ? null : _registerUser,
                         child: _isLoading
                             ? const SizedBox(
                                 height: 20,
@@ -142,14 +218,14 @@ class _AuthScreenState extends State<AuthScreen> {
                                   color: Colors.white,
                                 ),
                               )
-                            : const Text('Login'),
+                            : const Text('Register'),
                       ),
                     ),
                     const SizedBox(height: 16),
                     TextButton(
-                      onPressed: _isLoading ? null : () => context.go('/register'),
+                      onPressed: _isLoading ? null : () => context.go('/'),
                       child: Text(
-                        'Don\'t have an account? Register',
+                        'Already have an account? Login',
                         style: TextStyle(color: Theme.of(context).colorScheme.secondary),
                       ),
                     ),

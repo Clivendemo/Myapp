@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../services/auth_service.dart';
+import 'package:edunjema3/services/auth_service.dart';
+//import 'package:edunjema3/services/auth_service.dart';
 
 // State for authentication
 class AuthState {

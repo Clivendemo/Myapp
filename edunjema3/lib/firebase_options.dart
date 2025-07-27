@@ -2,38 +2,43 @@
 // You will need to run `flutterfire configure` in your terminal
 // after setting up your Firebase project to generate the actual content.
 
+// IMPORTANT: After pasting this, run 'flutterfire configure' in your terminal
+// from the root of your project to generate the actual Firebase options.
+
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
-// MODIFIED: Import kIsWeb for web platform detection
 import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform, kIsWeb;
+
 
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
-    // MODIFIED: Use kIsWeb for web platform check
     if (kIsWeb) {
       return const FirebaseOptions(
-        apiKey: 'YOUR_WEB_API_KEY',
-        appId: 'YOUR_WEB_APP_ID',
-        messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-        projectId: 'YOUR_PROJECT_ID',
-        authDomain: 'YOUR_AUTH_DOMAIN',
-        storageBucket: 'YOUR_STORAGE_BUCKET',
+         apiKey: "AIzaSyD-2VKuhGFrPcJ0zPPWblUkWAoDU_PO0wg",
+        authDomain: "edunjema3-cc49c.firebaseapp.com",
+         projectId: "edunjema3-cc49c",
+        storageBucket: "edunjema3-cc49c.firebasestorage.app",
+        messagingSenderId: "576942726328",
+        appId: "1:576942726328:web:37b6cb93c67721b4d6284d",
+        measurementId: "G-M1YF7DSK87"
       );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return const FirebaseOptions(
-          apiKey: 'YOUR_ANDROID_API_KEY',
-          appId: 'YOUR_ANDROID_APP_ID',
-          messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-          projectId: 'YOUR_PROJECT_ID',
-          storageBucket: 'YOUR_STORAGE_BUCKET',
+           apiKey: "AIzaSyD-2VKuhGFrPcJ0zPPWblUkWAoDU_PO0wg",
+           authDomain: "edunjema3-cc49c.firebaseapp.com",
+          projectId: "edunjema3-cc49c",
+          storageBucket: "edunjema3-cc49c.firebasestorage.app",
+          messagingSenderId: "576942726328",
+          appId: "1:576942726328:web:37b6cb93c67721b4d6284d",
+          measurementId: "G-M1YF7DSK87"
         );
       case TargetPlatform.iOS:
         return const FirebaseOptions(
           apiKey: 'YOUR_IOS_API_KEY',
           appId: 'YOUR_IOS_APP_ID',
           messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-          projectId: 'YOUR_PROJECT_ID',
+          projectId: 'edunjema3-cc49c',
           storageBucket: 'YOUR_STORAGE_BUCKET',
           iosClientId: 'YOUR_IOS_CLIENT_ID',
           iosBundleId: 'YOUR_IOS_BUNDLE_ID',
@@ -43,12 +48,11 @@ class DefaultFirebaseOptions {
           apiKey: 'YOUR_MACOS_API_KEY',
           appId: 'YOUR_MACOS_APP_ID',
           messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-          projectId: 'YOUR_PROJECT_ID',
+          projectId: 'edunjema3-cc49c',
           storageBucket: 'YOUR_STORAGE_BUCKET',
           iosClientId: 'YOUR_MACOS_CLIENT_ID',
           iosBundleId: 'YOUR_MACOS_BUNDLE_ID',
         );
-      // MODIFIED: Removed the problematic 'case TargetPlatform.web:' as it's handled by kIsWeb
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',

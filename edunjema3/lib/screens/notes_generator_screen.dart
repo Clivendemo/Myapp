@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/firestore_service.dart';
-import '../services/openai_service.dart';
+import '../services/openai_service.dart'; // NEW: Import OpenAIService
 
 class NotesGeneratorScreen extends StatefulWidget {
   const NotesGeneratorScreen({super.key});
@@ -12,9 +12,9 @@ class NotesGeneratorScreen extends StatefulWidget {
 class _NotesGeneratorScreenState extends State<NotesGeneratorScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  String? _selectedSyllabus;
-  String? _selectedGrade;
-  String? _selectedSubject;
+  String? _selectedSyllabus = 'CBC';
+  String? _selectedGrade = 'Grade 1';
+  String? _selectedSubject = 'Mathematics';
   String? _selectedStrandTopic;
   String? _selectedSubstrandSubtopic;
 
@@ -27,7 +27,46 @@ class _NotesGeneratorScreenState extends State<NotesGeneratorScreen> {
   Map<String, String> _userSettings = {};
 
   final FirestoreService _firestoreService = FirestoreService();
-  final OpenAIService _openAIService = OpenAIService();
+  final OpenAIService _openAIService = OpenAIService(); // NEW: Re-added OpenAIService
+
+  // Mock syllabus data for demonstration (still useful if Firestore is empty)
+  final Map<String, dynamic> _mockSyllabusContent = {
+    'CBC': {
+      'Grade 1': {
+        'Mathematics': {
+          'Numbers': ['Counting', 'Number Recognition', 'Basic Operations'],
+          'Geometry': ['Shapes', 'Patterns', 'Spatial Awareness'],
+          'Measurement': ['Length', 'Weight', 'Time'],
+        },
+        'English': {
+          'Reading': ['Letter Recognition', 'Phonics', 'Simple Words'],
+          'Writing': ['Letter Formation', 'Simple Sentences'],
+          'Speaking': ['Vocabulary', 'Pronunciation'],
+        },
+      },
+      'Grade 2': {
+        'Mathematics': {
+          'Numbers': ['Addition', 'Subtraction', 'Place Value'],
+          'Geometry': ['2D Shapes', 'Symmetry'],
+          'Measurement': ['Money', 'Time', 'Capacity'],
+        },
+      },
+    },
+    '8-4-4': {
+      'Form 1': {
+        'Mathematics': {
+          'Algebra': ['Linear Equations', 'Inequalities'],
+          'Geometry': ['Angles', 'Triangles', 'Circles'],
+          'Statistics': ['Data Collection', 'Graphs'],
+        },
+        'English': {
+          'Grammar': ['Parts of Speech', 'Tenses'],
+          'Literature': ['Poetry', 'Prose'],
+          'Composition': ['Essays', 'Letters'],
+        },
+      },
+    },
+  };
 
   @override
   void initState() {
@@ -40,19 +79,28 @@ class _NotesGeneratorScreenState extends State<NotesGeneratorScreen> {
       _isLoadingInitialData = true;
       _initialDataError = null;
     });
+    
     try {
+      // Try to load from Firestore, fallback to mock data
       _syllabusContent = await _firestoreService.getSyllabusContent();
+      if (_syllabusContent.isEmpty) {
+        _syllabusContent = _mockSyllabusContent;
+      }
+      
       _userSettings = await _firestoreService.getUserSettings();
-
-      setState(() {
-        _selectedSyllabus = _userSettings['syllabus'];
-        _selectedGrade = _userSettings['grade'];
-        _selectedSubject = _userSettings['subject'];
-      });
+      if (_userSettings.isNotEmpty) {
+        setState(() {
+          _selectedSyllabus = _userSettings['syllabus'] ?? 'CBC';
+          _selectedGrade = _userSettings['grade'] ?? 'Grade 1';
+          _selectedSubject = _userSettings['subject'] ?? 'Mathematics';
+        });
+      }
     } catch (e) {
       print('Error loading initial notes data: $e');
+      // Use mock data as fallback
+      _syllabusContent = _mockSyllabusContent;
       setState(() {
-        _initialDataError = 'Failed to load initial data: $e';
+        _initialDataError = null; // Don't show error, just use mock data
       });
     } finally {
       setState(() {
@@ -72,6 +120,7 @@ class _NotesGeneratorScreenState extends State<NotesGeneratorScreen> {
     });
 
     try {
+      // NEW: Call the actual OpenAI service
       final generatedContent = await _openAIService.generateNotes(
         syllabus: _selectedSyllabus!,
         grade: _selectedGrade!,
@@ -83,16 +132,21 @@ class _NotesGeneratorScreenState extends State<NotesGeneratorScreen> {
       setState(() {
         _generatedNotes = generatedContent;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Notes generation complete!')),
-      );
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Notes generated successfully!')),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error generating notes: $e')),
-      );
-      setState(() {
-        _generatedNotes = 'Error: $e';
-      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error generating notes: $e')),
+        );
+        setState(() {
+          _generatedNotes = 'Error: $e';
+        });
+      }
     } finally {
       setState(() {
         _isGenerating = false;
@@ -102,12 +156,6 @@ class _NotesGeneratorScreenState extends State<NotesGeneratorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isLoadingInitialData && _userSettings['syllabus'] != _selectedSyllabus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _loadInitialData();
-      });
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notes Generator'),
@@ -145,12 +193,83 @@ class _NotesGeneratorScreenState extends State<NotesGeneratorScreen> {
                                   style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                                 const SizedBox(height: 16),
-                                Text('Syllabus: ${_selectedSyllabus ?? 'N/A'}', style: Theme.of(context).textTheme.titleMedium),
-                                const SizedBox(height: 8),
-                                Text('Grade/Form: ${_selectedGrade ?? 'N/A'}', style: Theme.of(context).textTheme.titleMedium),
-                                const SizedBox(height: 8),
-                                Text('Subject: ${_selectedSubject ?? 'N/A'}', style: Theme.of(context).textTheme.titleMedium),
-                                const SizedBox(height: 24),
+                                
+                                DropdownButtonFormField<String>(
+                                  value: _selectedSyllabus,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Syllabus',
+                                    prefixIcon: Icon(Icons.menu_book),
+                                  ),
+                                  items: _syllabusContent.keys.map<DropdownMenuItem<String>>((item) {
+                                    return DropdownMenuItem<String>(
+                                      value: item.toString(),
+                                      child: Text(item.toString()),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      _selectedSyllabus = newValue;
+                                      _selectedGrade = null;
+                                      _selectedSubject = null;
+                                      _selectedStrandTopic = null;
+                                      _selectedSubstrandSubtopic = null;
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+
+                                DropdownButtonFormField<String>(
+                                  value: _selectedGrade,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Grade/Form',
+                                    prefixIcon: Icon(Icons.grade),
+                                  ),
+                                  items: _selectedSyllabus != null
+                                      ? (_syllabusContent[_selectedSyllabus!] as Map<String, dynamic>?)
+                                          ?.keys
+                                          .map<DropdownMenuItem<String>>((item) {
+                                            return DropdownMenuItem<String>(
+                                              value: item.toString(),
+                                              child: Text(item.toString()),
+                                            );
+                                          }).toList() ?? []
+                                      : [],
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      _selectedGrade = newValue;
+                                      _selectedSubject = null;
+                                      _selectedStrandTopic = null;
+                                      _selectedSubstrandSubtopic = null;
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+
+                                DropdownButtonFormField<String>(
+                                  value: _selectedSubject,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Subject',
+                                    prefixIcon: Icon(Icons.subject),
+                                  ),
+                                  items: (_selectedSyllabus != null && _selectedGrade != null)
+                                      ? (_syllabusContent[_selectedSyllabus!]?[_selectedGrade!] as Map<String, dynamic>?)
+                                          ?.keys
+                                          .map<DropdownMenuItem<String>>((item) {
+                                            return DropdownMenuItem<String>(
+                                              value: item.toString(),
+                                              child: Text(item.toString()),
+                                            );
+                                          }).toList() ?? []
+                                      : [],
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      _selectedSubject = newValue;
+                                      _selectedStrandTopic = null;
+                                      _selectedSubstrandSubtopic = null;
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 16),
 
                                 DropdownButtonFormField<String>(
                                   value: _selectedStrandTopic,
@@ -161,7 +280,7 @@ class _NotesGeneratorScreenState extends State<NotesGeneratorScreen> {
                                   items: (_selectedSyllabus != null && _selectedGrade != null && _selectedSubject != null)
                                       ? (_syllabusContent[_selectedSyllabus!]?[_selectedGrade!]?[_selectedSubject!] as Map<String, dynamic>?)
                                           ?.keys
-                                          .map<DropdownMenuItem<String>>((item) { // MODIFIED: Explicit type argument
+                                          .map<DropdownMenuItem<String>>((item) {
                                             return DropdownMenuItem<String>(
                                               value: item.toString(),
                                               child: Text(item.toString()),
@@ -186,7 +305,7 @@ class _NotesGeneratorScreenState extends State<NotesGeneratorScreen> {
                                   ),
                                   items: (_selectedSyllabus != null && _selectedGrade != null && _selectedSubject != null && _selectedStrandTopic != null)
                                       ? (_syllabusContent[_selectedSyllabus!]?[_selectedGrade!]?[_selectedSubject!]?[_selectedStrandTopic!] as List<dynamic>?)
-                                          ?.map<DropdownMenuItem<String>>((item) { // MODIFIED: Explicit type argument
+                                          ?.map<DropdownMenuItem<String>>((item) {
                                             return DropdownMenuItem<String>(
                                               value: item.toString(),
                                               child: Text(item.toString()),

@@ -1,16 +1,71 @@
 import 'package:flutter/material.dart';
-// REMOVED: import 'package:flutter_riverpod/flutter_riverpod.dart';
-// REMOVED: import '../providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
-import '../services/auth_service.dart'; // NEW: Import AuthService
+//import 'package:firebase_auth/firebase_auth.dart';
+import '../services/auth_service.dart';
+import '../services/firestore_service.dart';
 
-class HomeScreen extends StatelessWidget { // MODIFIED: Changed to StatelessWidget
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) { // MODIFIED: Removed WidgetRef ref
-    final AuthService authService = AuthService(); // NEW: Instantiate AuthService
+  State<HomeScreen> createState() => _HomeScreenState();
+}
 
+class _HomeScreenState extends State<HomeScreen> {
+  final AuthService _authService = AuthService();
+  final FirestoreService _firestoreService = FirestoreService();
+  String _userName = 'Teacher';
+  bool _isLoadingProfile = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    try {
+      print('[HomeScreen] Loading user profile...');
+      final profile = await _firestoreService.getUserProfile();
+      if (profile != null && profile.containsKey('name')) {
+        setState(() {
+          _userName = profile['name'] ?? 'Teacher';
+        });
+        print('[HomeScreen] Profile loaded: $_userName');
+      } else {
+        print('[HomeScreen] No profile found, using default name');
+        setState(() {
+          _userName = 'Teacher';
+        });
+      }
+    } catch (e) {
+      print('[HomeScreen] Error loading user profile: $e');
+      // Set default name and continue
+      setState(() {
+        _userName = 'Teacher';
+      });
+    } finally {
+      setState(() {
+        _isLoadingProfile = false;
+      });
+    }
+  }
+
+  Future<void> _signOut() async {
+    try {
+      await _authService.signOut();
+      // GoRouter's redirect will handle navigation back to AuthScreen
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error signing out: $e')),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final List<Map<String, dynamic>> features = [
       {'name': 'Lesson Plan Generator', 'icon': Icons.school, 'route': '/lesson-plan-generator'},
       {'name': 'Notes Generator', 'icon': Icons.edit_note, 'route': '/notes-generator'},
@@ -26,10 +81,7 @@ class HomeScreen extends StatelessWidget { // MODIFIED: Changed to StatelessWidg
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await authService.signOut(); // MODIFIED: Use authService directly
-              // GoRouter will automatically redirect to '/' due to authStateChanges listener
-            },
+            onPressed: _signOut,
             tooltip: 'Logout',
           ),
         ],
@@ -41,13 +93,15 @@ class HomeScreen extends StatelessWidget { // MODIFIED: Changed to StatelessWidg
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 24.0),
-              child: Text(
-                'Welcome, Teacher!',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
+              child: _isLoadingProfile
+                  ? const CircularProgressIndicator()
+                  : Text(
+                      'Welcome, $_userName!',
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).primaryColor,
+                          ),
                     ),
-              ),
             ),
             GridView.builder(
               shrinkWrap: true,

@@ -20,5 +20,16 @@
         "npm --prefix \"$RESOURCE_DIR\" run lint"
       ]
     }
-  ]
+  ],
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "edunjema3-cc49c",
+          "appId": "1:576942726328:android:7b53d529e0890a12d6284d",
+          "fileOutput": "android/app/google-services.json"
+        }
+      }
+    }
+  }
 }

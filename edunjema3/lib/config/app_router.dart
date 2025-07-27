@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-// REMOVED: import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../screens/auth_screen.dart';
-import '../screens/home_screen.dart';
-// REMOVED: import '../providers/auth_provider.dart';
-import '../screens/settings_screen.dart';
-import '../screens/lesson_plan_generator_screen.dart';
-import '../screens/notes_generator_screen.dart';
+import 'package:edunjema3/screens/auth_screen.dart';
+import 'package:edunjema3/screens/home_screen.dart';
+import 'package:edunjema3/screens/registration_screen.dart';
+import 'package:edunjema3/screens/lesson_plan_generator_screen.dart';
+import 'package:edunjema3/screens/notes_generator_screen.dart';
+import 'package:edunjema3/screens/settings_screen.dart';
+import 'package:edunjema3/screens/faq_help_screen.dart';
+import 'package:edunjema3/screens/saved_plans_screen.dart';
 import 'dart:async';
 
-// MODIFIED: Make GoRouter a global instance
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
   routes: [
@@ -23,8 +23,8 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const HomeScreen(),
     ),
     GoRoute(
-      path: '/settings',
-      builder: (context, state) => const SettingsScreen(),
+      path: '/register',
+      builder: (context, state) => const RegistrationScreen(),
     ),
     GoRoute(
       path: '/lesson-plan-generator',
@@ -34,33 +34,38 @@ final GoRouter appRouter = GoRouter(
       path: '/notes-generator',
       builder: (context, state) => const NotesGeneratorScreen(),
     ),
-    // NEW: Add routes for Saved Plans and FAQ/Help
     GoRoute(
       path: '/saved-plans',
-      builder: (context, state) => const Center(child: Text('Saved Plans Screen (Coming Soon)')), // Placeholder
+      builder: (context, state) => const SavedPlansScreen(),
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const SettingsScreen(),
     ),
     GoRoute(
       path: '/faq-help',
-      builder: (context, state) => const Center(child: Text('FAQ/Help Screen (Coming Soon)')), // Placeholder
+      builder: (context, state) => const FaqHelpScreen(),
     ),
   ],
   redirect: (context, state) {
-    // MODIFIED: Directly check FirebaseAuth.instance.currentUser
     final isAuthenticated = FirebaseAuth.instance.currentUser != null;
     final isLoggingIn = state.matchedLocation == '/';
+    final isRegistering = state.matchedLocation == '/register';
 
-    if (!isAuthenticated && !isLoggingIn) {
-      return '/'; // Redirect to login if not authenticated and not on login page
+    // If not authenticated and not on login/register screen, redirect to login
+    if (!isAuthenticated && !isLoggingIn && !isRegistering) {
+      return '/';
     }
-    if (isAuthenticated && isLoggingIn) {
-      return '/home'; // Redirect to home if authenticated and on login page
+    // If authenticated and trying to access login or register, redirect to home
+    if (isAuthenticated && (isLoggingIn || isRegistering)) {
+      return '/home';
     }
-    return null; // No redirect needed
+    // No redirect needed
+    return null;
   },
   refreshListenable: GoRouterRefreshStream(FirebaseAuth.instance.authStateChanges()),
 );
 
-// Helper class to make GoRouter react to changes in a Stream
 class GoRouterRefreshStream extends ChangeNotifier {
   late final StreamSubscription<dynamic> _subscription;
 
