@@ -3,9 +3,8 @@ import 'dart:convert'; // NEW: Import for JSON encoding/decoding
 import 'package:http/http.dart' as http; // NEW: Import the http package
 
 class OpenAIService {
-  // Replace with your actual Vercel API endpoint URL
-  // IMPORTANT: Make sure this URL is correct and points to your deployed Next.js API route.
-  final String _vercelApiBaseUrl = 'https://myapp-mu-six.vercel.app/api/generate-content'; 
+ 
+  final String _vercelApiBaseUrl = 'https://myapp-mu-six.vercel.app/api/generate-content'; // NEW: Update with your actual Vercel API URL
 
   Future<String> generateLessonPlan({
     required String syllabus,
