@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
-import '../services/auth_service.dart';
+//import 'package:edunjema3/services/auth_service.dart';
 import '../services/firestore_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // NEW: Import for Riverpod
+import '../providers/auth_provider.dart'; // NEW: Import authProvider
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget { // MODIFIED: Changed to ConsumerStatefulWidget
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState(); // MODIFIED
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  final AuthService _authService = AuthService();
+class _HomeScreenState extends ConsumerState<HomeScreen> { // MODIFIED
   final FirestoreService _firestoreService = FirestoreService();
   String _userName = 'Teacher';
   bool _isLoadingProfile = true;
@@ -40,7 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       print('[HomeScreen] Error loading user profile: $e');
-      // Set default name and continue
       setState(() {
         _userName = 'Teacher';
       });
@@ -53,7 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _signOut() async {
     try {
-      await _authService.signOut();
+      // MODIFIED: Use ref.read to access authServiceProvider
+      await ref.read(authServiceProvider).signOut();
       // GoRouter's redirect will handle navigation back to AuthScreen
     } catch (e) {
       if (mounted) {

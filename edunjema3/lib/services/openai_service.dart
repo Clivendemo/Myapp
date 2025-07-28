@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http; // NEW: Import the http package
 
 class OpenAIService {
  
-  final String _vercelApiBaseUrl = 'http://myapp-mu-six.vercel.app/api/generate-content'; // NEW: Update with your actual Vercel API URL
+  final String _vercelApiBaseUrl = 'https://myapp-mu-six.vercel.app/api/generate-content'; // NEW: Update with your actual Vercel API URL
 
   Future<String> generateLessonPlan({
     required String syllabus,

@@ -1,11 +1,14 @@
 import { generateText } from "ai"
-import { openai } from "@ai-sdk/openai"
+import { createOpenAI } from "@ai-sdk/openai" // MODIFIED: Import createOpenAI
 import { type NextRequest, NextResponse } from "next/server"
 
-
- 
 // Define allowed origins for CORS. In production, replace '*' with your Flutter app's domain.
-const allowedOrigin = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "edunjema3-cc49c.firebaseapp.com"
+const allowedOrigin = process.env.NEXT_PUBLIC_API_URL || "http://myapp-mu-six.vercel.app/api/generate-content"
+
+// NEW: Create an OpenAI client instance with the API key
+const openai = createOpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+})
 
 // Helper function to set CORS headers
 function setCorsHeaders(response: NextResponse) {
@@ -14,9 +17,6 @@ function setCorsHeaders(response: NextResponse) {
   response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
   response.headers.set("Access-Control-Max-Age", "86400") // Cache preflight for 24 hours
 }
-
-
-
 
 // Handle OPTIONS requests (preflight requests for CORS)
 export async function OPTIONS() {
@@ -95,14 +95,13 @@ export async function POST(req: NextRequest) {
     }
 
     const { text } = await generateText({
-      model: openai("gpt-4o"), // Using gpt-4o as previously discussed
+      model: openai("gpt-4o"), // MODIFIED: Use the 'openai' instance created above
       prompt: prompt,
       system: systemMessage,
       maxTokens: maxTokens,
       temperature: 0.7,
     })
 
-    
     if (!text) {
       setCorsHeaders(response)
       return NextResponse.json({ error: "OpenAI did not return any content." }, { status: 500 })

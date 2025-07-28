@@ -42,7 +42,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     try {
       print('[RegistrationScreen] Starting registration process...');
       print('[RegistrationScreen] Email: $email, Name: $name');
-      
+
       // 1. Create user with email and password using AuthService
       final userCredential = await _authService.createUserWithEmailAndPassword(
         email,
@@ -64,19 +64,21 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
       print('[RegistrationScreen] Profile saved successfully.');
 
+      // NEW: Explicitly sign out the user after successful registration
+      await _authService.signOut();
+      print('[RegistrationScreen] User signed out after registration.');
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registration successful!')),
+          const SnackBar(content: Text('Registration successful! Please log in with your new credentials.')), // MODIFIED message
         );
 
-        // 3. After successful registration, navigate back to the login screen
-        // GoRouter's redirect will then automatically send authenticated users to /home
+        // 3. After successful registration and sign-out, navigate back to the login screen
         context.go('/'); // Navigate back to the login screen
       }
-    } catch (e, st) {
+    } catch (e) {
       print('[RegistrationScreen] Error during registration. Type: ${e.runtimeType}, Message: $e');
-      print('Stack Trace: $st');
-      
+
       if (mounted) {
         setState(() {
           _errorMessage = e.toString();

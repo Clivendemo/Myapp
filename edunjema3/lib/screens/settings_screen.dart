@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../services/firestore_service.dart';
-// Removed: import 'package:edunjema3/utils/logger.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -29,20 +28,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'English': {},
         'Kiswahili': {},
         'Environmental Activities': {},
-        'Religious Education': {},
-        'Art and Craft': {},
-        'Music': {},
-        'Physical Education': {},
       },
       'Grade 2': {
         'Mathematics': {},
         'English': {},
         'Kiswahili': {},
         'Environmental Activities': {},
-        'Religious Education': {},
-        'Art and Craft': {},
-        'Music': {},
-        'Physical Education': {},
       },
       'Grade 3': {
         'Mathematics': {},
@@ -51,102 +42,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'Environmental Activities': {},
         'Social Studies': {},
         'Science and Technology': {},
-        'Religious Education': {},
-        'Art and Craft': {},
-        'Music': {},
-        'Physical Education': {},
       },
-      'Grade 4': {
-        'Mathematics': {},
-        'English': {},
-        'Kiswahili': {},
-        'Science and Technology': {},
-        'Social Studies and Religious Education': {},
-        'Home Science': {},
-        'Agriculture': {},
-        'Art and Craft': {},
-        'Music': {},
-        'Physical and Health Education': {},
-        'Business Studies': {},
-        'Computer Studies': {},
-      },
-      'Grade 5': {
-        'Mathematics': {},
-        'English': {},
-        'Kiswahili': {},
-        'Science and Technology': {},
-        'Social Studies and Religious Education': {},
-        'Home Science': {},
-        'Agriculture': {},
-        'Art and Craft': {},
-        'Music': {},
-        'Physical and Health Education': {},
-        'Business Studies': {},
-        'Computer Studies': {},
-      },
-      'Grade 6': {
-        'Mathematics': {},
-        'English': {},
-        'Kiswahili': {},
-        'Science and Technology': {},
-        'Social Studies and Religious Education': {},
-        'Home Science': {},
-        'Agriculture': {},
-        'Art and Craft': {},
-        'Music': {},
-        'Physical and Health Education': {},
-        'Business Studies': {},
-        'Computer Studies': {},
-      },
-      'Grade 7': {
-        'Mathematics': {},
-        'English': {},
-        'Kiswahili': {},
-        'Integrated Science': {},
-        'Social Studies': {},
-        'Religious Education': {},
-        'Pre-Technical Studies': {},
-        'Visual Arts': {},
-        'Performing Arts': {},
-        'Home Science': {},
-        'Computer Science': {},
-        'Business Studies': {},
-        'Agriculture and Nutrition': {},
-        'Sports and Physical Education': {},
-      },
-      'Grade 8': {
-        'Mathematics': {},
-        'English': {},
-        'Kiswahili': {},
-        'Integrated Science': {},
-        'Social Studies': {},
-        'Religious Education': {},
-        'Pre-Technical Studies': {},
-        'Visual Arts': {},
-        'Performing Arts': {},
-        'Home Science': {},
-        'Computer Science': {},
-        'Business Studies': {},
-        'Agriculture and Nutrition': {},
-        'Sports and Physical Education': {},
-      },
-      'Grade 9': {
-        'Mathematics': {},
-        'English': {},
-        'Kiswahili': {},
-        'Integrated Science': {},
-        'Social Studies': {},
-        'Religious Education': {},
-        'Pre-Technical Studies': {},
-        'Visual Arts': {},
-        'Performing Arts': {},
-        'Home Science': {},
-        'Computer Science': {},
-        'Business Studies': {},
-        'Agriculture and Nutrition': {},
-        'Sports and Physical Education': {},
-      },
-      'Grade 10': {
+    },
+    '8-4-4': {
+      'Form 1': {
         'Mathematics': {},
         'English': {},
         'Kiswahili': {},
@@ -155,48 +54,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'Physics': {},
         'History': {},
         'Geography': {},
-        'Business Studies': {},
-        'Agriculture': {},
-        'Computer Studies': {},
-        'Art and Design': {},
-        'Music': {},
-        'French': {},
-        'German': {},
-        'Arabic': {},
-        'Home Science': {},
-        'Religious Education': {},
       },
-    },
-    '8-4-4': {
       'Form 2': {
-        'Mathematics': {}, 'English': {}, 'Kiswahili': {},
-        'Biology': {}, 'Chemistry': {}, 'Physics': {},
-        'History': {}, 'Geography': {}, 'Religious Education (CRE/IRE/HRE)': {},
-        'Business Studies': {}, 'Agriculture': {}, 'Computer Studies': {},
-        'Art and Design': {}, 'Music': {}, 'French': {}, 'German': {}, 'Arabic': {},
-        'Home Science': {}, 'Woodwork': {}, 'Metalwork': {}, 'Building Construction': {},
-        'Power Mechanics': {}, 'Electricity': {}, 'Drawing and Design': {},
-        'Aviation Technology': {},
-      },
-      'Form 3': {
-        'Mathematics': {}, 'English': {}, 'Kiswahili': {},
-        'Biology': {}, 'Chemistry': {}, 'Physics': {},
-        'History': {}, 'Geography': {}, 'Religious Education (CRE/IRE/HRE)': {},
-        'Business Studies': {}, 'Agriculture': {}, 'Computer Studies': {},
-        'Art and Design': {}, 'Music': {}, 'French': {}, 'German': {}, 'Arabic': {},
-        'Home Science': {}, 'Woodwork': {}, 'Metalwork': {}, 'Building Construction': {},
-        'Power Mechanics': {}, 'Electricity': {}, 'Drawing and Design': {},
-        'Aviation Technology': {},
-      },
-      'Form 4': {
-        'Mathematics': {}, 'English': {}, 'Kiswahili': {},
-        'Biology': {}, 'Chemistry': {}, 'Physics': {},
-        'History': {}, 'Geography': {}, 'Religious Education (CRE/IRE/HRE)': {},
-        'Business Studies': {}, 'Agriculture': {}, 'Computer Studies': {},
-        'Art and Design': {}, 'Music': {}, 'French': {}, 'German': {}, 'Arabic': {},
-        'Home Science': {}, 'Woodwork': {}, 'Metalwork': {}, 'Building Construction': {},
-        'Power Mechanics': {}, 'Electricity': {}, 'Drawing and Design': {},
-        'Aviation Technology': {},
+        'Mathematics': {},
+        'English': {},
+        'Kiswahili': {},
+        'Biology': {},
+        'Chemistry': {},
+        'Physics': {},
+        'History': {},
+        'Geography': {},
       },
     },
   };
@@ -346,15 +213,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   prefixIcon: Icon(Icons.grade),
                                 ),
                                 items: _selectedSyllabus != null
-                                  ? (_syllabusContent[_selectedSyllabus!] as Map<String, dynamic>?)
-                                      ?.keys
-                                      .map<DropdownMenuItem<String>>((item) {
-                                        return DropdownMenuItem<String>(
-                                          value: item.toString(),
-                                          child: Text(item.toString()),
-                                        );
-                                      }).toList() ?? []
-                                  : [],
+                                    ? (_syllabusContent[_selectedSyllabus!] as Map<String, dynamic>?)
+                                        ?.keys
+                                        .map<DropdownMenuItem<String>>((item) {
+                                          return DropdownMenuItem<String>(
+                                            value: item.toString(),
+                                            child: Text(item.toString()),
+                                          );
+                                        }).toList() ?? []
+                                    : [],
                                 onChanged: (String? newValue) {
                                   setState(() {
                                     _selectedGrade = newValue;
@@ -371,15 +238,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   prefixIcon: Icon(Icons.subject),
                                 ),
                                 items: (_selectedSyllabus != null && _selectedGrade != null)
-                                  ? (_syllabusContent[_selectedSyllabus!]?[_selectedGrade!] as Map<String, dynamic>?)
-                                      ?.keys
-                                      .map<DropdownMenuItem<String>>((item) {
-                                        return DropdownMenuItem<String>(
-                                          value: item.toString(),
-                                          child: Text(item.toString()),
-                                        );
-                                      }).toList() ?? []
-                                  : [],
+                                    ? (_syllabusContent[_selectedSyllabus!]?[_selectedGrade!] as Map<String, dynamic>?)
+                                        ?.keys
+                                        .map<DropdownMenuItem<String>>((item) {
+                                          return DropdownMenuItem<String>(
+                                            value: item.toString(),
+                                            child: Text(item.toString()),
+                                          );
+                                        }).toList() ?? []
+                                    : [],
                                 onChanged: (String? newValue) {
                                   setState(() {
                                     _selectedSubject = newValue;
@@ -427,7 +294,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               const ListTile(
                                 leading: Icon(Icons.developer_mode),
                                 title: Text('Developer'),
-                                subtitle: Text('Teacher AI Team'),
+                                subtitle: Text('Clive Ndemo'),
                                 contentPadding: EdgeInsets.zero,
                               ),
                             ],
