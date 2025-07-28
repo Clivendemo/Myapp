@@ -9,6 +9,7 @@ import 'package:edunjema3/screens/notes_generator_screen.dart';
 import 'package:edunjema3/screens/settings_screen.dart';
 import 'package:edunjema3/screens/faq_help_screen.dart';
 import 'package:edunjema3/screens/saved_plans_screen.dart';
+//import 'package:edunjema3/config/config.dart';
 import 'dart:async';
 
 final GoRouter appRouter = GoRouter(
