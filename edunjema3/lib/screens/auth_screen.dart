@@ -64,7 +64,7 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login to edunjema3'),
+        title: const Text('Edunjema Login'),
         centerTitle: true,
       ),
       body: Center(
@@ -81,7 +81,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Welcome Back!',
+                      'Welcome!',
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).primaryColor,

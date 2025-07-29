@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import 'package:edunjema3/config/config.dart';
 
 export default function HomePage() {
   const [form, setForm] = useState({

@@ -1,7 +1,6 @@
 import { generateText } from "ai"
 import { createOpenAI } from "@ai-sdk/openai" // MODIFIED: Import createOpenAI
 import { type NextRequest, NextResponse } from "next/server"
-import 'package:edunjema3/config/config.dart';
 
 // Define allowed origins for CORS. In production, replace '*' with your Flutter app's domain.
 const allowedOrigin = process.env.NEXT_PUBLIC_API_URL || "http://myapp-mu-six.vercel.app/api/generate-content"
